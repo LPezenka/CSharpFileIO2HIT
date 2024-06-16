@@ -2,6 +2,10 @@
 
 class Program
 {
+    /// <summary>
+    /// Main entry point
+    /// Query all user input here
+    /// </summary>
     static void Main(string[] args)
     {
         Console.Write("Hello! Please specify a file name: ");
@@ -22,29 +26,38 @@ class Program
         {  
             Console.Write("Add/update key (blank line to exit): ");
             newKey = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(newKey))
-            {
-                PersistKeys(fname, keys, values);
-                return;
-            }
-            else
-            {
-                Console.Write("Enter value: ");
-                int newValue = int.Parse(Console.ReadLine());
-                if (keys.Contains(newKey))
-                {
-                    var index = keys.IndexOf(newKey);
-                    values[index] = newValue;
-                }
-                else
-                {
-                    keys.Add(newKey);
-                    values.Add(newValue);
-                }
-            }
+            Console.Write("Enter value: ");
+            int newValue = int.Parse(Console.ReadLine());
+            AddOrUpdateValue(keys, values, newKey, newValue);
         } while (!string.IsNullOrWhiteSpace(newKey));
+        PersistKeys(fname, keys, values);
+        Console.WriteLine("Data saved!");
     }
 
+    /// <summary>
+    /// Add or update a key value pair to config file
+    /// if the key exists, update the value
+    /// if the key does not exist, add the key value pair
+    /// </summary>
+    static bool AddOrUpdateValue(List<string> keys, List<int> values, string key, int value)
+    {
+        if (keys.Contains(key))
+        {
+            var index = keys.IndexOf(key);
+            values[index] = value;
+            return true;
+        }
+        else
+        {
+            keys.Add(key);
+            values.Add(value);
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Save the keys and values to a file
+    /// </summary>
     private static void PersistKeys(string fname, List<string> keys, List<int> values)
     {
         string[] lines = new string[keys.Count];
@@ -53,9 +66,11 @@ class Program
             lines[i] = $"{keys[i]}:{values[i]}";
         }
         File.WriteAllLines(fname, lines);
-        Console.WriteLine("Data saved!");
     }
 
+    /// <summary>
+    /// Read the config file and populate the keys and values
+    /// </summary>
     static bool ReadConfigFile(string fname, List<string> key, List<int> values)
     {
         try
@@ -75,6 +90,11 @@ class Program
         return false;
     }
 
+    /// <summary>
+    /// Parse the content of the file
+    /// for each line, split the line by ':'
+    /// the first part is the key, the second part is the value
+    /// </summary>
     private static void ParseContent(string[] content, List<string> key, List<int> values)
     {
         foreach (var line in content)
